@@ -1,6 +1,7 @@
 package main
 
 import (
+	htmlparser "simpleWebBrowser/htmlParser"
 	"simpleWebBrowser/render/position"
 	"simpleWebBrowser/render/tags"
 	"simpleWebBrowser/render/tags/h1"
@@ -15,20 +16,19 @@ func main() {
 	myWindow := myApp.NewWindow("Max Layout")
 	myWindow.Resize(fyne.NewSize(1000, 1000))
 
+	elements := htmlparser.Init()
+
 	pos := position.NewPosition(0, 0)
 
-	h1_ := h1.NewH1(tags.Tag{
-		TextContent: "Hello",
-		IsLine:      true,
-	}).Render(pos)
+	ui := []fyne.CanvasObject{}
 
-	h12_ := h1.NewH1(tags.Tag{
-		TextContent: "Hello",
-	}).Render(pos)
+	for _, element := range elements {
+		h1_ := h1.NewH1(tags.Tag{
+			TextContent: element.TextContent,
+		}).Render(pos)
+		ui = append(ui, h1_)
+	}
 
-	myWindow.SetContent(container.NewWithoutLayout(
-		h1_,
-		h12_,
-	))
+	myWindow.SetContent(container.NewWithoutLayout(ui...))
 	myWindow.ShowAndRun()
 }
