@@ -3,7 +3,7 @@ package css
 import (
 	"image/color"
 	"math"
-	"simpleWebBrowser/render/tags"
+	"simpleWebBrowser/render"
 	"strconv"
 	"strings"
 
@@ -21,6 +21,8 @@ var DEFAULT_COLOR = map[string]color.NRGBA{
 }
 
 type CSS struct {
+	x float32
+	y float32
 }
 
 func (c *CSS) Number(value string, defaultValue float32) float32 {
@@ -32,8 +34,9 @@ func (c *CSS) Number(value string, defaultValue float32) float32 {
 	return float32(number)
 }
 
-func (c *CSS) mapToStruct(properties map[string]string) *tags.Tag {
-	tag := &tags.Tag{}
+func (c *CSS) makeTag(element *parser.Element) *render.Tag {
+	properties := element.Properties
+	tag := render.TAGS[element.Type_]
 	if strings.Contains(properties["width"], "px") {
 		tag.Width = c.Number(properties["width"], 0)
 	}
@@ -41,12 +44,16 @@ func (c *CSS) mapToStruct(properties map[string]string) *tags.Tag {
 	if strings.Contains(properties["height"], "px") {
 		tag.Height = c.Number(properties["height"], 0)
 	}
-	tag.Display = properties["display"]
+	tag.Display, _ = properties["display"]
 	if properties["background"] != "" {
 		color := c.Color(properties["background"])
 		tag.Background = &color
 	}
-	return tag
+	tag.TextContent = element.TextContent
+	tag.Name = element.Type_
+	tag.X = c.x
+	tag.Y = c.y
+	return &tag
 }
 
 func (c *CSS) Color(colorStr string) color.NRGBA {
@@ -57,12 +64,10 @@ func (c *CSS) Color(colorStr string) color.NRGBA {
 	return colorRRBA
 }
 
-func (c *CSS) Run(dom *parser.Element) *tags.Tag {
-	tag := c.mapToStruct(dom.Properties)
-	tag.TextContent = dom.TextContent
-
+func (c *CSS) Run(dom *parser.Element, parent *render.Tag) *render.Tag {
+	tag := c.makeTag(dom)
 	for _, element := range dom.Children {
-		childTag := c.Run(element)
+		childTag := c.Run(element, tag)
 		tag.Children = append(tag.Children, childTag)
 		tag.ChildrenWidth += childTag.Width
 		if dom.Properties["width"] == "" {
@@ -82,8 +87,12 @@ func (c *CSS) Run(dom *parser.Element) *tags.Tag {
 			child.Y = tag.Y
 			lastWidth += child.Width + float32(gap)
 		}
+		c.y += tag.Height
+	} else if tag.Display == "inline" {
+		c.x += tag.Width
+	} else if parent != nil && parent.Height <= tag.Height {
+		c.y += tag.Height
 	}
-
 	return tag
 }
 
