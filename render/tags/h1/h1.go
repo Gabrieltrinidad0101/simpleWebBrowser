@@ -2,7 +2,6 @@ package h1
 
 import (
 	"image/color"
-	"simpleWebBrowser/render/position"
 	"simpleWebBrowser/render/tags"
 
 	"fyne.io/fyne/v2"
@@ -10,38 +9,25 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-func NewH1(tag tags.Tag) *h1 {
-
-	if tag.Color == nil {
-		tag.Color = &color.NRGBA{R: 255, G: 255, B: 255, A: 255}
-	}
-
-	if tag.Height == nil {
-		h := float32(24.0)
-		tag.Height = &h
-	}
-
-	return &h1{
-		Tag: tag,
-	}
+func NewH1() *h1 {
+	return &h1{}
 }
 
 type h1 struct {
-	tags.Tag
 }
 
-func (h *h1) Render(position *position.Position) *fyne.Container {
-	h1 := canvas.NewText(h.TextContent, *h.Color)
-	h1.TextSize = *h.Height
-	container := container.NewWithoutLayout(h1)
-	h1.Move(fyne.NewPos(position.X, position.Y))
-
-	if h.IsLine {
-		width := fyne.MeasureText(h1.Text, h1.TextSize, fyne.TextStyle{}).Width
-		position.X += width
-	} else {
-		position.Y += *h.Height
+func (h *h1) Render(tag *tags.Tag) *fyne.Container {
+	ui := []fyne.CanvasObject{}
+	h1 := canvas.NewText(tag.TextContent, color.NRGBA{R: 255, G: 255, B: 255, A: 255})
+	h1.TextSize = 24
+	if tag.Background != nil {
+		rect := canvas.NewRectangle(*tag.Background)
+		rect.Resize(fyne.NewSize(tag.Width, tag.Height))
+		rect.Move(fyne.NewPos(tag.X, tag.Y))
+		ui = append(ui, rect)
 	}
-
+	ui = append(ui, h1)
+	container := container.NewWithoutLayout(ui...)
+	h1.Move(fyne.NewPos(tag.X, tag.Y))
 	return container
 }

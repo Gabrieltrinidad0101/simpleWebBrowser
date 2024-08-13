@@ -2,7 +2,7 @@ package main
 
 import (
 	htmlparser "simpleWebBrowser/htmlParser"
-	"simpleWebBrowser/render/position"
+	"simpleWebBrowser/render/css"
 	"simpleWebBrowser/render/tags"
 	"simpleWebBrowser/render/tags/h1"
 
@@ -11,22 +11,29 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
+func render(tag *tags.Tag, ui *[]fyne.CanvasObject) *[]fyne.CanvasObject {
+	tagUI := h1.NewH1().Render(tag)
+	*ui = append(*ui, tagUI)
+	for _, child := range tag.Children {
+		render(child, ui)
+	}
+
+	return ui
+}
+
 func main() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Max Layout")
 	myWindow.Resize(fyne.NewSize(1000, 1000))
 
-	elements := htmlparser.Init()
+	dom := htmlparser.Init()
 
-	pos := position.NewPosition(0, 0)
-
+	css_ := css.New()
+	tags := css_.Run(dom)
 	ui := []fyne.CanvasObject{}
 
-	for _, element := range elements {
-		h1_ := h1.NewH1(tags.Tag{
-			TextContent: element.TextContent,
-		}).Render(pos)
-		ui = append(ui, h1_)
+	for _, child := range tags.Children {
+		render(child, &ui)
 	}
 
 	myWindow.SetContent(container.NewWithoutLayout(ui...))
