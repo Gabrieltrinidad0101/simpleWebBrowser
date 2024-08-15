@@ -8,25 +8,6 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-type Tag struct {
-	Height         float32 `json:"height"`
-	Width          float32 `json:"width"`
-	Margin         float32 `json:"margin"`
-	Padding        float32 `json:"padding"`
-	Display        string  `json:"display"`
-	Name           string  `json:"name"`
-	Gap            float64 `json:"gap"`
-	JustifyContent string  `json:"justifyContent"`
-	Background     *color.NRGBA
-	TextContent    string
-	ChildrenWidth  float32
-	Color          color.NRGBA
-	Children       []*Tag
-	X              float32
-	Y              float32
-	FontSize       float32
-}
-
 type render struct{}
 
 func New() *render {
@@ -45,8 +26,8 @@ func (r render) Render(tag *Tag, ui *[]fyne.CanvasObject) *[]fyne.CanvasObject {
 
 func (r render) label(tag *Tag, uis *[]fyne.CanvasObject) {
 	ui := canvas.NewText(tag.TextContent, color.NRGBA{R: 255, G: 255, B: 255, A: 255})
-	*uis = append(*uis, ui)
-	ui.TextSize = 24
+	ui.TextSize = tag.FontSize
+	ui.Resize(fyne.NewSize(tag.Width, tag.Height))
 	if tag.Background != nil {
 		rect := canvas.NewRectangle(*tag.Background)
 		rect.Resize(fyne.NewSize(tag.Width, tag.Height))
@@ -54,11 +35,33 @@ func (r render) label(tag *Tag, uis *[]fyne.CanvasObject) {
 		*uis = append(*uis, rect)
 	}
 	ui.Move(fyne.NewPos(tag.X, tag.Y))
+	*uis = append(*uis, ui)
+}
+
+func (r render) button(tag *Tag, uis *[]fyne.CanvasObject) {
+	label := &Tag{
+		X:           tag.TextX,
+		Y:           tag.TextY,
+		TextContent: tag.TextContent,
+		FontSize:    tag.FontSize,
+	}
+	button := canvas.NewRectangle(color.NRGBA{R: 255, G: 255, B: 255, A: 255})
+	button.Move(fyne.NewPos(tag.X, tag.Y))
+	button.FillColor = color.NRGBA{R: 0, G: 0, B: 0, A: 255}
+	button.StrokeColor = color.NRGBA{R: 255, G: 255, B: 255, A: 255}
+	button.StrokeWidth = 2
+	button.Resize(fyne.NewSize(tag.Width, tag.Height))
+	*uis = append(*uis, button)
+	r.label(label, uis)
 }
 
 func (r render) render(tag *Tag) *fyne.Container {
 	uis := []fyne.CanvasObject{}
-	r.label(tag, &uis)
+	if tag.Name == "button" {
+		r.button(tag, &uis)
+	} else {
+		r.label(tag, &uis)
+	}
 	container := container.NewWithoutLayout(uis...)
 	return container
 }

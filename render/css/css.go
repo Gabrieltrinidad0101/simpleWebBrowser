@@ -49,6 +49,10 @@ func (c *CSS) makeTag(element *parser.Element) *render.Tag {
 		color := c.Color(properties["background"])
 		tag.Background = &color
 	}
+
+	if properties["width"] == "" {
+		tag.Width = float32(len(element.TextContent) * int(tag.FontSize))
+	}
 	tag.TextContent = element.TextContent
 	tag.Name = element.Type_
 	tag.X = c.x
@@ -90,7 +94,7 @@ func (c *CSS) Run(dom *parser.Element, parent *render.Tag) *render.Tag {
 		c.y += tag.Height
 	} else if tag.Display == "inline" {
 		c.x += tag.Width
-	} else if parent != nil && parent.Height <= tag.Height {
+	} else if parent != nil {
 		c.y += tag.Height
 	}
 	return tag

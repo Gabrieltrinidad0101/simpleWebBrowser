@@ -3,7 +3,7 @@ package main
 import (
 	htmlparser "simpleWebBrowser/htmlParser"
 	"simpleWebBrowser/render"
-	"simpleWebBrowser/render/css"
+	"simpleWebBrowser/render/html"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -17,8 +17,8 @@ func main() {
 
 	dom := htmlparser.Init()
 
-	css_ := css.New()
-	tags := css_.Run(dom, nil)
+	html_ := html.New()
+	tags := html_.Run(dom, nil)
 	ui := []fyne.CanvasObject{}
 	uiRender := render.New()
 	uiRender.Render(tags, &ui)
