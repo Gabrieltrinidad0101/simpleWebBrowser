@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"fyne.io/fyne/v2"
 	"github.com/Gabrieltrinidad0101/html-parser/parser"
 )
 
@@ -20,9 +21,18 @@ var DEFAULT_COLOR = map[string]color.NRGBA{
 	"pink":   {R: 255, G: 192, B: 203, A: 255},
 }
 
+type BasicPosition struct {
+	X float32
+	Y float32
+	W float32
+	H float32
+}
+
 type CSS struct {
-	x float32
-	y float32
+	x                  float32
+	y                  float32
+	lastIsInline       bool
+	lastIsInlineHeight float32
 }
 
 func (c *CSS) Number(value string, defaultValue float32) float32 {
@@ -32,6 +42,20 @@ func (c *CSS) Number(value string, defaultValue float32) float32 {
 		return defaultValue
 	}
 	return float32(number)
+}
+
+func (r *CSS) getLabelCenter(tag *render.Tag) *BasicPosition {
+	textDimention := fyne.MeasureText(tag.TextContent, tag.FontSize, fyne.TextStyle{})
+
+	x := tag.X + tag.PaddingLeft
+	y := tag.Y + tag.PaddingTop
+
+	return &BasicPosition{
+		X: x,
+		Y: y,
+		W: textDimention.Width,
+		H: textDimention.Height,
+	}
 }
 
 func (c *CSS) makeTag(element *parser.Element) *render.Tag {
@@ -44,7 +68,11 @@ func (c *CSS) makeTag(element *parser.Element) *render.Tag {
 	if strings.Contains(properties["height"], "px") {
 		tag.Height = c.Number(properties["height"], 0)
 	}
-	tag.Display, _ = properties["display"]
+
+	if properties["display"] != "" {
+		tag.Display, _ = properties["display"]
+	}
+
 	if properties["background"] != "" {
 		color := c.Color(properties["background"])
 		tag.Background = &color
@@ -57,6 +85,14 @@ func (c *CSS) makeTag(element *parser.Element) *render.Tag {
 	tag.Name = element.Type_
 	tag.X = c.x
 	tag.Y = c.y
+
+	if tag.Name == "button" {
+		labelPosition := c.getLabelCenter(&tag)
+		tag.TextX = labelPosition.X
+		tag.TextY = labelPosition.Y
+		tag.Width = labelPosition.W + tag.PaddingLeft + tag.PaddingRight
+		tag.Height = labelPosition.H + tag.PaddingTop + tag.PaddingBottom
+	}
 	return &tag
 }
 
@@ -94,9 +130,18 @@ func (c *CSS) Run(dom *parser.Element, parent *render.Tag) *render.Tag {
 		c.y += tag.Height
 	} else if tag.Display == "inline" {
 		c.x += tag.Width
-	} else if parent != nil {
+		c.lastIsInlineHeight = float32(math.Max(float64(c.lastIsInlineHeight), float64(tag.Height)))
+	} else if parent != nil && parent.Display != "flex" {
 		c.y += tag.Height
+		if c.lastIsInline {
+			c.y += c.lastIsInlineHeight
+			tag.Y = c.y
+		}
+		c.y += tag.Height
+		tag.X = parent.X
+		c.x = parent.X
 	}
+	c.lastIsInline = tag.Display == "inline"
 	return tag
 }
 
