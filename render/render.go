@@ -29,7 +29,7 @@ func (r render) label(tag *Tag, uis *[]fyne.CanvasObject) {
 	ui.TextSize = tag.FontSize
 	ui.Resize(fyne.NewSize(tag.Width, tag.Height))
 	if tag.Background != nil {
-		rect := canvas.NewRectangle(*tag.Background)
+		rect := canvas.NewRectangle(tag.Background)
 		rect.Resize(fyne.NewSize(tag.Width, tag.Height))
 		rect.Move(fyne.NewPos(tag.X, tag.Y))
 		*uis = append(*uis, rect)

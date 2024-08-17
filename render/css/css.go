@@ -1,11 +1,10 @@
 package css
 
 import (
+	"fmt"
 	"image/color"
 	"math"
 	"simpleWebBrowser/render"
-	"strconv"
-	"strings"
 
 	"fyne.io/fyne/v2"
 	"github.com/Gabrieltrinidad0101/html-parser/parser"
@@ -35,15 +34,6 @@ type CSS struct {
 	lastIsInlineHeight float32
 }
 
-func (c *CSS) Number(value string, defaultValue float32) float32 {
-	value = strings.ReplaceAll(value, "px", "")
-	number, err := strconv.ParseFloat(value, 32)
-	if err != nil {
-		return defaultValue
-	}
-	return float32(number)
-}
-
 func (r *CSS) getLabelCenter(tag *render.Tag) *BasicPosition {
 	textDimention := fyne.MeasureText(tag.TextContent, tag.FontSize, fyne.TextStyle{})
 
@@ -58,42 +48,8 @@ func (r *CSS) getLabelCenter(tag *render.Tag) *BasicPosition {
 	}
 }
 
-func (c *CSS) makeTag(element *parser.Element) *render.Tag {
-	properties := element.Properties
-	tag := render.TAGS[element.Type_]
-	if strings.Contains(properties["width"], "px") {
-		tag.Width = c.Number(properties["width"], 0)
-	}
-
-	if strings.Contains(properties["height"], "px") {
-		tag.Height = c.Number(properties["height"], 0)
-	}
-
-	if properties["display"] != "" {
-		tag.Display, _ = properties["display"]
-	}
-
-	if properties["background"] != "" {
-		color := c.Color(properties["background"])
-		tag.Background = &color
-	}
-
-	if properties["width"] == "" {
-		tag.Width = float32(len(element.TextContent) * int(tag.FontSize))
-	}
-	tag.TextContent = element.TextContent
-	tag.Name = element.Type_
-	tag.X = c.x
-	tag.Y = c.y
-
-	if tag.Name == "button" {
-		labelPosition := c.getLabelCenter(&tag)
-		tag.TextX = labelPosition.X
-		tag.TextY = labelPosition.Y
-		tag.Width = labelPosition.W + tag.PaddingLeft + tag.PaddingRight
-		tag.Height = labelPosition.H + tag.PaddingTop + tag.PaddingBottom
-	}
-	return &tag
+func (c *CSS) print(tag *render.Tag) {
+	fmt.Println("name: ", tag.Name, " width: ", tag.Width, " height: ", tag.Height, "display: ", tag.Display)
 }
 
 func (c *CSS) Color(colorStr string) color.NRGBA {
@@ -106,42 +62,41 @@ func (c *CSS) Color(colorStr string) color.NRGBA {
 
 func (c *CSS) Run(dom *parser.Element, parent *render.Tag) *render.Tag {
 	tag := c.makeTag(dom)
+	biggerWidth := float32(0.0)
+	biggerHeight := float32(0.0)
+	totalChildrenWidth := float32(0.0)
+	totalChildrenHeight := float32(0.0)
+	
 	for _, element := range dom.Children {
 		childTag := c.Run(element, tag)
 		tag.Children = append(tag.Children, childTag)
-		tag.ChildrenWidth += childTag.Width
-		if dom.Properties["width"] == "" {
-			tag.Width += childTag.Width
-		}
-
-		if dom.Properties["height"] == "" {
-			tag.Height += childTag.Height
-		}
+		biggerWidth = float32(math.Max(float64(biggerWidth), float64(childTag.Width)))
+		biggerHeight = float32(math.Max(float64(biggerHeight), float64(childTag.Height)))
+		totalChildrenWidth += childTag.Width
+		totalChildrenHeight += childTag.Height
 	}
 
-	if tag.Display == "flex" {
-		gap := math.Max(float64((tag.Width-tag.ChildrenWidth)/float32(len(tag.Children)-1)), 0+float64(tag.Gap))
-		lastWidth := float32(0.0)
-		for _, child := range tag.Children {
-			child.X = lastWidth
-			child.Y = tag.Y
-			lastWidth += child.Width + float32(gap)
-		}
-		c.y += tag.Height
-	} else if tag.Display == "inline" {
-		c.x += tag.Width
-		c.lastIsInlineHeight = float32(math.Max(float64(c.lastIsInlineHeight), float64(tag.Height)))
-	} else if parent != nil && parent.Display != "flex" {
-		c.y += tag.Height
-		if c.lastIsInline {
-			c.y += c.lastIsInlineHeight
-			tag.Y = c.y
-		}
-		c.y += tag.Height
-		tag.X = parent.X
-		c.x = parent.X
+	if tag.Height <= 0 && tag.Display == "inline" {
+		tag.Height = biggerHeight
+		tag.Width = totalChildrenWidth
 	}
+
+	if tag.Width <= 0 && tag.Display == "block" {
+		tag.Width = biggerWidth
+		tag.Height = totalChildrenHeight
+	}
+
+	distanceHeight := tag.Height - totalChildrenHeight
+	distanceWidth := tag.Width - totalChildrenWidth
+
+	if tag.Display == "inline" && distanceWidth > 0 {
+		c.x += distanceWidth
+	} else if parent != nil && distanceHeight > 0 {
+		c.y += distanceHeight
+	}
+
 	c.lastIsInline = tag.Display == "inline"
+	c.print(tag)
 	return tag
 }
 
