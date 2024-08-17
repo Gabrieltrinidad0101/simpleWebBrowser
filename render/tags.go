@@ -3,6 +3,8 @@ package render
 import "image/color"
 
 type Tag struct {
+	BorderColor    color.Color
+	BorderWidth         float32
 	Height         float32
 	Width          float32
 	PaddingLeft    float32
@@ -12,7 +14,7 @@ type Tag struct {
 	Padding        float32
 	Display        string
 	Name           string
-	Gap            float64
+	Gap            float32
 	JustifyContent string
 	Background     *color.NRGBA
 	TextContent    string
@@ -50,6 +52,12 @@ var Div = Tag{
 	FontSize: 25,
 }
 
+var Text = Tag{
+	Display:  "inline",
+	Name:     "text",
+	FontSize: 25,
+}
+
 var Button = Tag{
 	Display:       "inline",
 	Name:          "button",
@@ -66,4 +74,5 @@ var TAGS = map[string]Tag{
 	"p":      P,
 	"button": Button,
 	"div":    Div,
+	"text":   Text,
 }

@@ -5,63 +5,70 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
-	"fyne.io/fyne/v2/container"
 )
 
-type render struct{}
+type render struct {
+	Uis *[]fyne.CanvasObject
+}
 
 func New() *render {
-	return &render{}
-}
-
-func (r render) Render(tag *Tag, ui *[]fyne.CanvasObject) *[]fyne.CanvasObject {
-	tagUI := r.render(tag)
-	*ui = append(*ui, tagUI)
-	for _, child := range tag.Children {
-		r.Render(child, ui)
+	uis := []fyne.CanvasObject{}
+	return &render{
+		Uis: &uis,
 	}
-
-	return ui
 }
 
-func (r render) label(tag *Tag, uis *[]fyne.CanvasObject) {
-	ui := canvas.NewText(tag.TextContent, color.NRGBA{R: 255, G: 255, B: 255, A: 255})
-	ui.TextSize = tag.FontSize
-	ui.Resize(fyne.NewSize(tag.Width, tag.Height))
+func (r render) Render(tags []*Tag) {
+	for _, tag := range tags {
+		if tag.Name == "style" {
+			continue
+		}
+		r.render(tag)
+		r.Render(tag.Children)
+	}
+}
+
+func (r render) setBackgroundColor(tag *Tag) {
 	if tag.Background != nil {
 		rect := canvas.NewRectangle(tag.Background)
 		rect.Resize(fyne.NewSize(tag.Width, tag.Height))
 		rect.Move(fyne.NewPos(tag.X, tag.Y))
-		*uis = append(*uis, rect)
+		*r.Uis = append(*r.Uis, rect)
 	}
-	ui.Move(fyne.NewPos(tag.X, tag.Y))
-	*uis = append(*uis, ui)
 }
 
-func (r render) button(tag *Tag, uis *[]fyne.CanvasObject) {
-	label := &Tag{
-		X:           tag.TextX,
-		Y:           tag.TextY,
-		TextContent: tag.TextContent,
-		FontSize:    tag.FontSize,
-	}
+func (r render) label(tag *Tag) {
+	ui := canvas.NewText(tag.TextContent, tag.Color)
+	ui.TextSize = tag.FontSize
+	ui.Resize(fyne.NewSize(tag.Width, tag.Height))
+	ui.Move(fyne.NewPos(tag.X, tag.Y))
+	*r.Uis = append(*r.Uis, ui)
+}
+
+func (r render) container(tag *Tag) {
+	container := canvas.NewRectangle(tag.Color)
+	container.Move(fyne.NewPos(tag.X, tag.Y))
+	container.FillColor = color.NRGBA{R: 0, G: 0, B: 0, A: 255}
+	container.StrokeColor = tag.BorderColor
+	container.StrokeWidth = tag.BorderWidth
+	container.Resize(fyne.NewSize(tag.Width, tag.Height))
+	*r.Uis = append(*r.Uis, container)
+}
+
+func (r render) button(tag *Tag) {
 	button := canvas.NewRectangle(color.NRGBA{R: 255, G: 255, B: 255, A: 255})
 	button.Move(fyne.NewPos(tag.X, tag.Y))
 	button.FillColor = color.NRGBA{R: 0, G: 0, B: 0, A: 255}
 	button.StrokeColor = color.NRGBA{R: 255, G: 255, B: 255, A: 255}
 	button.StrokeWidth = 2
 	button.Resize(fyne.NewSize(tag.Width, tag.Height))
-	*uis = append(*uis, button)
-	r.label(label, uis)
+	*r.Uis = append(*r.Uis, button)
 }
 
-func (r render) render(tag *Tag) *fyne.Container {
-	uis := []fyne.CanvasObject{}
-	if tag.Name == "button" {
-		r.button(tag, &uis)
+func (r render) render(tag *Tag) {
+	if tag.Name == "text" {
+		r.label(tag)
 	} else {
-		r.label(tag, &uis)
+		r.container(tag)
 	}
-	container := container.NewWithoutLayout(uis...)
-	return container
 }

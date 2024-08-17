@@ -18,11 +18,10 @@ func main() {
 	dom := htmlparser.Init()
 
 	css_ := css.New()
-	tags := css_.Run(dom, nil)
-	ui := []fyne.CanvasObject{}
+	tags := css_.Run(dom.Children)
 	uiRender := render.New()
-	uiRender.Render(tags, &ui)
+	uiRender.Render(tags)
 
-	myWindow.SetContent(container.NewWithoutLayout(ui...))
+	myWindow.SetContent(container.NewWithoutLayout(*uiRender.Uis...))
 	myWindow.ShowAndRun()
 }

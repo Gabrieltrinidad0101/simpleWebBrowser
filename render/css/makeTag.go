@@ -1,6 +1,7 @@
 package css
 
 import (
+	"image/color"
 	"simpleWebBrowser/render"
 	"strconv"
 	"strings"
@@ -18,9 +19,17 @@ func (c *CSS) NumberDefault(value string, defaultValue float32) float32 {
 	return float32(number)
 }
 
-func (c *CSS) makeTag(element *parser.Element) *render.Tag {
+func (c *CSS) border(border string) (float32, color.Color) {
+	parts := strings.Split(border, " ")
+	width := c.NumberDefault(parts[0], 0)
+	color := c.Color(parts[1])
+	return width, color
+}
+
+func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 	properties := element.Properties
 	tag := render.TAGS[element.Type_]
+	tag.TextContent = element.TextContent
 
 	var textDimention fyne.Size
 
@@ -30,6 +39,7 @@ func (c *CSS) makeTag(element *parser.Element) *render.Tag {
 	tag.PaddingTop = c.NumberDefault(properties["padding-top"], 0)
 	tag.PaddingBottom = c.NumberDefault(properties["padding-bottom"], 0)
 	tag.PaddingBottom = c.NumberDefault(properties["padding-right"], 0)
+
 	if properties["display"] != "" {
 		tag.Display = properties["display"]
 	}
@@ -37,6 +47,19 @@ func (c *CSS) makeTag(element *parser.Element) *render.Tag {
 	if properties["background"] != "" {
 		color := c.Color(properties["background"])
 		tag.Background = &color
+	}
+
+	if properties["color"] != "" {
+		color := c.Color(properties["color"])
+		tag.Color = color
+	} else if parent != nil {
+		tag.Color = parent.Color
+	}
+
+	if properties["border"] != "" {
+		width, color := c.border(properties["border"])
+		tag.BorderWidth = width
+		tag.BorderColor = color
 	}
 
 	if element.TextContent != "" {
@@ -51,18 +74,8 @@ func (c *CSS) makeTag(element *parser.Element) *render.Tag {
 		tag.Height = textDimention.Height
 	}
 
-	if tag.Name == "button" {
-		labelPosition := c.getLabelCenter(&tag)
-		tag.TextX = labelPosition.X
-		tag.TextY = labelPosition.Y
-		tag.Width = labelPosition.W + tag.PaddingLeft + tag.PaddingRight
-		tag.Height = labelPosition.H + tag.PaddingTop + tag.PaddingBottom
-	}
-
-	tag.TextContent = element.TextContent
 	tag.Name = element.Type_
-	tag.X = c.x 
+	tag.X = c.x
 	tag.Y = c.y
-
 	return &tag
 }

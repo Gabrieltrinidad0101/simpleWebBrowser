@@ -49,7 +49,7 @@ func (r *CSS) getLabelCenter(tag *render.Tag) *BasicPosition {
 }
 
 func (c *CSS) print(tag *render.Tag) {
-	fmt.Println("name: ", tag.Name, " width: ", tag.Width, " height: ", tag.Height, "display: ", tag.Display)
+	fmt.Println("name: ", tag.Name, " width: ", tag.Width, " height: ", tag.Height, "display: ", tag.Display, "x: ", tag.X, "y: ", tag.Y)
 }
 
 func (c *CSS) Color(colorStr string) color.NRGBA {
@@ -60,15 +60,29 @@ func (c *CSS) Color(colorStr string) color.NRGBA {
 	return colorRRBA
 }
 
-func (c *CSS) Run(dom *parser.Element, parent *render.Tag) *render.Tag {
-	tag := c.makeTag(dom)
+func (c *CSS) Run(children []*parser.Element) []*render.Tag {
+	tags := make([]*render.Tag, 0, len(children))
+	for _, child := range children {
+		tag := c.run(child, nil)
+		tags = append(tags, tag)
+	}
+	return tags
+}
+
+
+
+func (c *CSS) run(dom *parser.Element, parent *render.Tag) *render.Tag {
+	tag := c.makeTag(dom, parent)
 	biggerWidth := float32(0.0)
 	biggerHeight := float32(0.0)
 	totalChildrenWidth := float32(0.0)
 	totalChildrenHeight := float32(0.0)
-	
+
+	c.y += tag.BorderWidth
+	c.x += tag.BorderWidth
+
 	for _, element := range dom.Children {
-		childTag := c.Run(element, tag)
+		childTag := c.run(element, tag)
 		tag.Children = append(tag.Children, childTag)
 		biggerWidth = float32(math.Max(float64(biggerWidth), float64(childTag.Width)))
 		biggerHeight = float32(math.Max(float64(biggerHeight), float64(childTag.Height)))
@@ -86,13 +100,13 @@ func (c *CSS) Run(dom *parser.Element, parent *render.Tag) *render.Tag {
 		tag.Height = totalChildrenHeight
 	}
 
-	distanceHeight := tag.Height - totalChildrenHeight
-	distanceWidth := tag.Width - totalChildrenWidth
+	tag.Height += tag.BorderWidth * 2
+	tag.Width += tag.BorderWidth * 2
 
-	if tag.Display == "inline" && distanceWidth > 0 {
-		c.x += distanceWidth
-	} else if parent != nil && distanceHeight > 0 {
-		c.y += distanceHeight
+	if tag.Display == "inline" {
+		c.x += tag.Width
+	} else {
+		c.y += tag.Height
 	}
 
 	c.lastIsInline = tag.Display == "inline"
