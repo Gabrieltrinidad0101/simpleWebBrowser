@@ -4,13 +4,17 @@ import "image/color"
 
 type Tag struct {
 	BorderColor    color.Color
-	BorderWidth         float32
+	BorderWidth    float32
 	Height         float32
 	Width          float32
 	PaddingLeft    float32
 	PaddingTop     float32
 	PaddingBottom  float32
 	PaddingRight   float32
+	MarginLeft     float32
+	MarginTop      float32
+	MarginBottom   float32
+	MarginRight    float32
 	Padding        float32
 	Display        string
 	Name           string
@@ -21,17 +25,29 @@ type Tag struct {
 	ChildrenWidth  float32
 	Color          color.NRGBA
 	Children       []*Tag
-	TextX          float32
-	TextY          float32
 	X              float32
 	Y              float32
 	FontSize       float32
+	ChildX         float32
+	ChildY         float32
+}
+
+var Root = Tag{
+	Display:  "block",
+	Height:   1000,
+	Width:    1000,
+	X:        0,
+	Y:        0,
+	Name:     "root",
+	FontSize: 25,
+	Color:    color.NRGBA{R: 0, G: 0, B: 0, A: 255},
 }
 
 var H1 = Tag{
-	Display:  "block",
-	Name:     "h1",
-	FontSize: 30,
+	Display:    "block",
+	Name:       "h1",
+	FontSize:   30,
+	MarginLeft: 10,
 }
 
 var Span = Tag{
@@ -75,4 +91,5 @@ var TAGS = map[string]Tag{
 	"button": Button,
 	"div":    Div,
 	"text":   Text,
+	"root":   Root,
 }

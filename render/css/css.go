@@ -18,6 +18,7 @@ var DEFAULT_COLOR = map[string]color.NRGBA{
 	"orange": {R: 255, G: 165, B: 0, A: 255},
 	"purple": {R: 128, G: 0, B: 128, A: 255},
 	"pink":   {R: 255, G: 192, B: 203, A: 255},
+	"black":  {R: 0, G: 0, B: 0, A: 255},
 }
 
 type BasicPosition struct {
@@ -28,10 +29,6 @@ type BasicPosition struct {
 }
 
 type CSS struct {
-	x                  float32
-	y                  float32
-	lastIsInline       bool
-	lastIsInlineHeight float32
 }
 
 func (r *CSS) getLabelCenter(tag *render.Tag) *BasicPosition {
@@ -55,21 +52,44 @@ func (c *CSS) print(tag *render.Tag) {
 func (c *CSS) Color(colorStr string) color.NRGBA {
 	colorRRBA, ok := DEFAULT_COLOR[colorStr]
 	if !ok {
-		return color.NRGBA{R: 255, G: 255, B: 255, A: 255}
+		return color.NRGBA{R: 0, G: 0, B: 0, A: 255}
 	}
 	return colorRRBA
 }
 
-func (c *CSS) Run(children []*parser.Element) []*render.Tag {
-	tags := make([]*render.Tag, 0, len(children))
-	for _, child := range children {
-		tag := c.run(child, nil)
-		tags = append(tags, tag)
-	}
-	return tags
+func (c *CSS) Run(root *parser.Element) *render.Tag {
+	tag := c.run(root, &render.Root)
+	c.resetPosition(tag, &render.Root)
+	return tag
 }
 
+func (c *CSS) resetPosition(tag *render.Tag, parent *render.Tag) {
+	c.print(tag)
+	tag.ChildX = tag.X + tag.BorderWidth
+	tag.ChildY = tag.Y + tag.BorderWidth
 
+	gap := math.Max(float64((tag.Width-tag.BorderWidth*2-tag.ChildrenWidth)/float32(len(tag.Children)-1))+float64(tag.Gap), 0)
+
+	for _, child := range tag.Children {
+		child.X = tag.ChildX + child.MarginLeft
+		child.Y = tag.ChildY + child.MarginTop
+
+		if child.Display == "inline" || child.Display == "inline-block" {
+			tag.ChildX += child.X - tag.ChildX + child.Width + child.MarginRight
+		} else if tag.Display == "flex" {
+			child.X = tag.ChildX
+			child.Y = tag.ChildY
+			tag.ChildX += child.Width + float32(gap)
+		} else {
+			tag.ChildY += child.Y + child.Height + child.MarginBottom
+		}
+	}
+
+	for _, child := range tag.Children {
+		c.resetPosition(child, tag)
+	}
+
+}
 
 func (c *CSS) run(dom *parser.Element, parent *render.Tag) *render.Tag {
 	tag := c.makeTag(dom, parent)
@@ -77,9 +97,6 @@ func (c *CSS) run(dom *parser.Element, parent *render.Tag) *render.Tag {
 	biggerHeight := float32(0.0)
 	totalChildrenWidth := float32(0.0)
 	totalChildrenHeight := float32(0.0)
-
-	c.y += tag.BorderWidth
-	c.x += tag.BorderWidth
 
 	for _, element := range dom.Children {
 		childTag := c.run(element, tag)
@@ -90,27 +107,24 @@ func (c *CSS) run(dom *parser.Element, parent *render.Tag) *render.Tag {
 		totalChildrenHeight += childTag.Height
 	}
 
-	if tag.Height <= 0 && tag.Display == "inline" {
+	tag.ChildrenWidth = totalChildrenWidth
+
+	if tag.Display == "inline" && len(dom.Children) > 0 {
+		tag.Width = biggerWidth
 		tag.Height = biggerHeight
+	}
+
+	if tag.Width <= 0 && tag.Display == "inline-block" {
 		tag.Width = totalChildrenWidth
 	}
 
-	if tag.Width <= 0 && tag.Display == "block" {
-		tag.Width = biggerWidth
+	if tag.Height <= 0 && tag.Display == "block" {
 		tag.Height = totalChildrenHeight
 	}
 
 	tag.Height += tag.BorderWidth * 2
 	tag.Width += tag.BorderWidth * 2
 
-	if tag.Display == "inline" {
-		c.x += tag.Width
-	} else {
-		c.y += tag.Height
-	}
-
-	c.lastIsInline = tag.Display == "inline"
-	c.print(tag)
 	return tag
 }
 

@@ -18,13 +18,13 @@ func New() *render {
 	}
 }
 
-func (r render) Render(tags []*Tag) {
-	for _, tag := range tags {
+func (r render) Render(tags *Tag) {
+	for _, tag := range tags.Children {
 		if tag.Name == "style" {
 			continue
 		}
 		r.render(tag)
-		r.Render(tag.Children)
+		r.Render(tag)
 	}
 }
 
@@ -48,7 +48,7 @@ func (r render) label(tag *Tag) {
 func (r render) container(tag *Tag) {
 	container := canvas.NewRectangle(tag.Color)
 	container.Move(fyne.NewPos(tag.X, tag.Y))
-	container.FillColor = color.NRGBA{R: 0, G: 0, B: 0, A: 255}
+	container.FillColor = color.NRGBA{R: 0, G: 0, B: 0, A: 0}
 	container.StrokeColor = tag.BorderColor
 	container.StrokeWidth = tag.BorderWidth
 	container.Resize(fyne.NewSize(tag.Width, tag.Height))
