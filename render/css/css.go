@@ -65,8 +65,8 @@ func (c *CSS) Run(root *parser.Element) *render.Tag {
 
 func (c *CSS) resetPosition(tag *render.Tag, parent *render.Tag) {
 	c.print(tag)
-	tag.ChildX = tag.X + tag.BorderWidth
-	tag.ChildY = tag.Y + tag.BorderWidth
+	tag.ChildX = tag.X + tag.BorderWidth + tag.PaddingTop
+	tag.ChildY = tag.Y + tag.BorderWidth + tag.PaddingLeft
 
 	gap := math.Max(float64((tag.Width-tag.BorderWidth*2-tag.ChildrenWidth)/float32(len(tag.Children)-1))+float64(tag.Gap), 0)
 
@@ -124,6 +124,8 @@ func (c *CSS) run(dom *parser.Element, parent *render.Tag) *render.Tag {
 
 	tag.Height += tag.BorderWidth * 2
 	tag.Width += tag.BorderWidth * 2
+	tag.Height += tag.PaddingTop + tag.PaddingBottom
+	tag.Width += tag.PaddingRight + tag.PaddingLeft
 
 	return tag
 }
