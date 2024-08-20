@@ -44,6 +44,7 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 	tag.MarginTop = c.NumberDefault(properties["margin-top"], tag.MarginTop)
 	tag.MarginBottom = c.NumberDefault(properties["margin-bottom"], tag.MarginBottom)
 	tag.MarginRight = c.NumberDefault(properties["margin-right"], tag.MarginRight)
+	tag.JustifyContent = properties["justify-content"]
 
 	if properties["display"] != "" {
 		tag.Display = properties["display"]

@@ -63,23 +63,67 @@ func (c *CSS) Run(root *parser.Element) *render.Tag {
 	return tag
 }
 
+func (c *CSS) flexBox(tag *render.Tag, child *render.Tag, index int) {
+	width := tag.Width - tag.BorderWidth*2
+	if tag.JustifyContent == "space-between" {
+		gap := math.Max(float64((width-tag.ChildrenWidth)/float32(len(tag.Children)-1))+float64(tag.Gap), 0)
+		child.X = tag.ChildX
+		child.Y = tag.ChildY
+		tag.ChildX += child.Width + float32(gap)
+	}
+
+	if tag.JustifyContent == "center" {
+		if index == 0 {
+			center := float32(math.Max(float64((width/2)-(tag.ChildrenWidth/2)), 0))
+			child.X = tag.ChildX + center
+			tag.ChildX += center + child.Width + tag.Gap
+			return
+		}
+		child.X = tag.ChildX
+		child.Y = tag.ChildY
+		tag.ChildX += child.Width + tag.Gap
+	}
+
+	if tag.JustifyContent == "space-evenly" {
+		gap := math.Max(float64((width-tag.ChildrenWidth)/float32(len(tag.Children)+1))+float64(tag.Gap), 0)
+		child.X = tag.ChildX + float32(gap)
+		child.Y = tag.ChildY
+		tag.ChildX += child.Width + float32(gap)
+	}
+
+	if tag.JustifyContent == "start" {
+		child.X = tag.ChildX
+		child.Y = tag.ChildY
+		tag.ChildX += child.Width + tag.Gap
+	}
+
+	if tag.JustifyContent == "end" {
+		if index == 0 {
+			end := float32(math.Max(float64((width - tag.ChildrenWidth)), 0))
+			child.X = tag.ChildX + end
+			tag.ChildX = end + child.Width + tag.Gap
+			return
+		}
+		child.X = tag.ChildX
+		child.Y = tag.ChildY
+		tag.ChildX += child.Width + tag.Gap
+	}
+
+}
+
 func (c *CSS) resetPosition(tag *render.Tag, parent *render.Tag) {
 	c.print(tag)
 	tag.ChildX = tag.X + tag.BorderWidth + tag.PaddingTop
 	tag.ChildY = tag.Y + tag.BorderWidth + tag.PaddingLeft
 
-	gap := math.Max(float64((tag.Width-tag.BorderWidth*2-tag.ChildrenWidth)/float32(len(tag.Children)-1))+float64(tag.Gap), 0)
-
-	for _, child := range tag.Children {
+	for i, child := range tag.Children {
 		child.X = tag.ChildX + child.MarginLeft
 		child.Y = tag.ChildY + child.MarginTop
 
 		if child.Display == "inline" || child.Display == "inline-block" {
 			tag.ChildX += child.X - tag.ChildX + child.Width + child.MarginRight
 		} else if tag.Display == "flex" {
-			child.X = tag.ChildX
-			child.Y = tag.ChildY
-			tag.ChildX += child.Width + float32(gap)
+			c.flexBox(tag, child, i)
 		} else {
 			tag.ChildY += child.Y + child.Height + child.MarginBottom
 		}
