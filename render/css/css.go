@@ -10,17 +10,6 @@ import (
 	"github.com/Gabrieltrinidad0101/html-parser/parser"
 )
 
-var DEFAULT_COLOR = map[string]color.NRGBA{
-	"red":    {R: 255, G: 0, B: 0, A: 255},
-	"blue":   {R: 0, G: 0, B: 255, A: 255},
-	"green":  {R: 0, G: 255, B: 0, A: 255},
-	"yellow": {R: 255, G: 255, B: 0, A: 255},
-	"orange": {R: 255, G: 165, B: 0, A: 255},
-	"purple": {R: 128, G: 0, B: 128, A: 255},
-	"pink":   {R: 255, G: 192, B: 203, A: 255},
-	"black":  {R: 0, G: 0, B: 0, A: 255},
-}
-
 type BasicPosition struct {
 	X float32
 	Y float32
@@ -50,7 +39,7 @@ func (c *CSS) print(tag *render.Tag) {
 }
 
 func (c *CSS) Color(colorStr string) color.NRGBA {
-	colorRRBA, ok := DEFAULT_COLOR[colorStr]
+	colorRRBA, ok := render.DEFAULT_COLOR[colorStr]
 	if !ok {
 		return color.NRGBA{R: 0, G: 0, B: 0, A: 255}
 	}
@@ -65,6 +54,7 @@ func (c *CSS) Run(root *parser.Element) *render.Tag {
 
 func (c *CSS) flexBox(tag *render.Tag, child *render.Tag, index int) {
 	width := tag.Width - tag.BorderWidth*2
+
 	if tag.JustifyContent == "space-between" {
 		gap := math.Max(float64((width-tag.ChildrenWidth)/float32(len(tag.Children)-1))+float64(tag.Gap), 0)
 		child.X = tag.ChildX
@@ -113,8 +103,8 @@ func (c *CSS) flexBox(tag *render.Tag, child *render.Tag, index int) {
 
 func (c *CSS) resetPosition(tag *render.Tag, parent *render.Tag) {
 	c.print(tag)
-	tag.ChildX = tag.X + tag.BorderWidth + tag.PaddingTop
-	tag.ChildY = tag.Y + tag.BorderWidth + tag.PaddingLeft
+	tag.ChildX = tag.X + tag.BorderWidth + tag.PaddingLeft
+	tag.ChildY = tag.Y + tag.BorderWidth + tag.PaddingTop
 
 	for i, child := range tag.Children {
 		child.X = tag.ChildX + child.MarginLeft

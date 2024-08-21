@@ -10,18 +10,37 @@ import (
 	"github.com/Gabrieltrinidad0101/html-parser/parser"
 )
 
-func (c *CSS) NumberDefault(value string, defaultValue float32) float32 {
-	value = strings.ReplaceAll(value, "px", "")
+func (c *CSS) percentage(value string, container float32) (float32, error) {
+	value = strings.ReplaceAll(value, "%", "")
 	number, err := strconv.ParseFloat(value, 32)
-	if err != nil {
-		return defaultValue
+	return float32(number) * container / 100, err
+}
+
+func (c *CSS) NumberDefault(value string, container float32, defaultValue float32) float32 {
+	if strings.Contains(value, "px") {
+		value = strings.ReplaceAll(value, "px", "")
+		number, err := strconv.ParseFloat(value, 32)
+		if err != nil {
+			return defaultValue
+		}
+		return float32(number)
 	}
-	return float32(number)
+
+	if strings.Contains(value, "%") {
+		number, err := c.percentage(value, container)
+		if err != nil {
+			return defaultValue
+		}
+		return float32(number)
+	}
+
+	return defaultValue
+
 }
 
 func (c *CSS) border(border string) (float32, color.Color) {
 	parts := strings.Split(border, " ")
-	width := c.NumberDefault(parts[0], 0)
+	width := c.NumberDefault(parts[0], 0, 0)
 	color := c.Color(parts[2])
 	return width, color
 }
@@ -33,18 +52,19 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 
 	var textDimention fyne.Size
 
-	tag.Width = c.NumberDefault(properties["width"], 0)
-	tag.Height = c.NumberDefault(properties["height"], 0)
-	tag.PaddingLeft = c.NumberDefault(properties["padding-left"], tag.PaddingLeft)
-	tag.PaddingTop = c.NumberDefault(properties["padding-top"], tag.PaddingTop)
-	tag.PaddingBottom = c.NumberDefault(properties["padding-bottom"], tag.PaddingBottom)
-	tag.PaddingRight = c.NumberDefault(properties["padding-right"], tag.PaddingRight)
+	tag.Width = c.NumberDefault(properties["width"], parent.Width, 0)
+	tag.Height = c.NumberDefault(properties["height"], parent.Height, 0)
+	tag.PaddingLeft = c.NumberDefault(properties["padding-left"], parent.Width, tag.PaddingLeft)
+	tag.PaddingTop = c.NumberDefault(properties["padding-top"], parent.Height, tag.PaddingTop)
+	tag.PaddingBottom = c.NumberDefault(properties["padding-bottom"], parent.Height, tag.PaddingBottom)
+	tag.PaddingRight = c.NumberDefault(properties["padding-right"], parent.Width, tag.PaddingRight)
 
-	tag.MarginLeft = c.NumberDefault(properties["margin-left"], tag.MarginLeft)
-	tag.MarginTop = c.NumberDefault(properties["margin-top"], tag.MarginTop)
-	tag.MarginBottom = c.NumberDefault(properties["margin-bottom"], tag.MarginBottom)
-	tag.MarginRight = c.NumberDefault(properties["margin-right"], tag.MarginRight)
+	tag.MarginLeft = c.NumberDefault(properties["margin-left"], parent.Width, tag.MarginLeft)
+	tag.MarginTop = c.NumberDefault(properties["margin-top"], parent.Height, tag.MarginTop)
+	tag.MarginBottom = c.NumberDefault(properties["margin-bottom"], parent.Height, tag.MarginBottom)
+	tag.MarginRight = c.NumberDefault(properties["margin-right"], parent.Width, tag.MarginRight)
 	tag.JustifyContent = properties["justify-content"]
+	tag.Gap = c.NumberDefault(properties["gap"], parent.Width, 0)
 
 	if properties["display"] != "" {
 		tag.Display = properties["display"]
@@ -52,7 +72,7 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 
 	if properties["background"] != "" {
 		color := c.Color(properties["background"])
-		tag.Background = &color
+		tag.Background = color
 	}
 
 	if properties["color"] != "" {
@@ -60,6 +80,12 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 		tag.Color = color
 	} else if parent != nil {
 		tag.Color = parent.Color
+	}
+
+	if properties["font-size"] != "" {
+		tag.FontSize = c.NumberDefault(properties["font-size"], parent.Height, tag.FontSize)
+	} else if parent != nil {
+		tag.FontSize = parent.FontSize
 	}
 
 	if properties["border"] != "" {

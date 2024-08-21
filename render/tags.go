@@ -1,6 +1,8 @@
 package render
 
-import "image/color"
+import (
+	"image/color"
+)
 
 type Tag struct {
 	BorderColor    color.Color
@@ -20,7 +22,7 @@ type Tag struct {
 	Name           string
 	Gap            float32
 	JustifyContent string
-	Background     *color.NRGBA
+	Background     color.NRGBA
 	TextContent    string
 	ChildrenWidth  float32
 	Color          color.NRGBA
@@ -69,15 +71,22 @@ var Div = Tag{
 }
 
 var Text = Tag{
-	Display:  "inline",
-	Name:     "text",
-	FontSize: 25,
+	Display: "inline",
+	Name:    "text",
 }
 
 var Button = Tag{
-	Display:       "inline",
-	Name:          "button",
-	FontSize:      20,
+	Display: "inline",
+	Name:    "button",
+	Background: color.NRGBA{
+		R: 233,
+		G: 233,
+		B: 237,
+		A: 255,
+	},
+	BorderColor:   DEFAULT_COLOR["black"],
+	BorderWidth:   1,
+	FontSize:      10,
 	PaddingLeft:   5,
 	PaddingTop:    5,
 	PaddingRight:  5,
