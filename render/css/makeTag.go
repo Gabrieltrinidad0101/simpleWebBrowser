@@ -5,6 +5,7 @@ import (
 	"simpleWebBrowser/render"
 	"strconv"
 	"strings"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"github.com/Gabrieltrinidad0101/html-parser/parser"
@@ -52,8 +53,8 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 
 	var textDimention fyne.Size
 
-	tag.Width = c.NumberDefault(properties["width"], parent.Width, 0)
-	tag.Height = c.NumberDefault(properties["height"], parent.Height, 0)
+	tag.Width = c.NumberDefault(properties["width"], parent.Width, tag.Width)
+	tag.Height = c.NumberDefault(properties["height"], parent.Height, tag.Height)
 	tag.PaddingLeft = c.NumberDefault(properties["padding-left"], parent.Width, tag.PaddingLeft)
 	tag.PaddingTop = c.NumberDefault(properties["padding-top"], parent.Height, tag.PaddingTop)
 	tag.PaddingBottom = c.NumberDefault(properties["padding-bottom"], parent.Height, tag.PaddingBottom)
@@ -111,5 +112,6 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 	}
 
 	tag.Name = element.Type_
+	tag.Id = string(time.Now().UnixMilli())
 	return &tag
 }

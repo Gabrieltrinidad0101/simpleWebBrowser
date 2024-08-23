@@ -5,9 +5,11 @@ go 1.22.5
 require (
 	fyne.io/fyne/v2 v2.5.0
 	github.com/Gabrieltrinidad0101/html-parser v1.0.4
+	github.com/Gabrieltrinidad0101/Make-Language v0.0.2
 )
 
 replace github.com/Gabrieltrinidad0101/html-parser => /home/gabriel/Desktop/go/html-parse
+replace github.com/Gabrieltrinidad0101/Make-Language => /home/gabriel/Desktop/go/makeLanguage
 
 require (
 	fyne.io/systray v1.11.0 // indirect

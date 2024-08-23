@@ -3,11 +3,16 @@ package render
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
-	"fyne.io/fyne/v2/widget"
 )
 
 type render struct {
 	Uis *[]fyne.CanvasObject
+}
+
+var uiElements = map[string]fyne.CanvasObject{}
+
+func UiElements() *map[string]fyne.CanvasObject {
+	return &uiElements
 }
 
 func New() *render {
@@ -33,6 +38,7 @@ func (r render) label(tag *Tag) {
 	ui.Resize(fyne.NewSize(tag.Width, tag.Height))
 	ui.Move(fyne.NewPos(tag.X, tag.Y))
 	*r.Uis = append(*r.Uis, ui)
+	uiElements[tag.Id] = ui
 }
 
 func (r render) container(tag *Tag) {
@@ -43,22 +49,20 @@ func (r render) container(tag *Tag) {
 	container.StrokeWidth = tag.BorderWidth
 	container.Resize(fyne.NewSize(tag.Width, tag.Height))
 	*r.Uis = append(*r.Uis, container)
+	uiElements[tag.Id] = container
 }
 
 func (r render) entry(tag *Tag) {
-	input := widget.NewEntry()
-
-	e := &widget.Entry{
-		Wrapping: fyne.TextWrap(fyne.TextTruncateClip),
-		
-	}
-	e.ExtendBaseWidget(e)
-
-	input.SetPlaceHolder("Enter text...")
-	input.Resize(fyne.NewSize(200, 30))
-	input.CreateRenderer()
-
+	r.container(tag)
+	input := NewCustomEntry()
+	x := tag.X + tag.PaddingLeft + tag.BorderWidth
+	y := tag.Y + tag.PaddingTop + tag.BorderWidth
+	w := tag.Width - tag.BorderWidth*2
+	h := tag.Height - tag.BorderWidth*2
+	input.Move(fyne.NewPos(x, y))
+	input.Resize(fyne.NewSize(w, h))
 	*r.Uis = append(*r.Uis, input)
+	uiElements[tag.Id] = input
 }
 
 func (r render) render(tag *Tag) {

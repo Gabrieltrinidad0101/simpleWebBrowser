@@ -32,6 +32,7 @@ type Tag struct {
 	FontSize       float32
 	ChildX         float32
 	ChildY         float32
+	Id             string
 }
 
 var Root = Tag{
@@ -93,6 +94,14 @@ var Button = Tag{
 	PaddingBottom: 5,
 }
 
+var Input = Tag{
+	Display:  "inline",
+	Name:     "input",
+	FontSize: 15,
+	Width:    75,
+	Height:   30,
+}
+
 var TAGS = map[string]Tag{
 	"h1":     H1,
 	"span":   Span,
@@ -100,5 +109,6 @@ var TAGS = map[string]Tag{
 	"button": Button,
 	"div":    Div,
 	"text":   Text,
+	"input":  Input,
 	"root":   Root,
 }

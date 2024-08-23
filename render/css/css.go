@@ -106,6 +106,10 @@ func (c *CSS) resetPosition(tag *render.Tag, parent *render.Tag) {
 	tag.ChildX = tag.X + tag.BorderWidth + tag.PaddingLeft
 	tag.ChildY = tag.Y + tag.BorderWidth + tag.PaddingTop
 
+	if tag.Name == "input" {
+		tag.ChildX += tag.Width
+	}
+
 	for i, child := range tag.Children {
 		child.X = tag.ChildX + child.MarginLeft
 		child.Y = tag.ChildY + child.MarginTop
