@@ -4,37 +4,6 @@ import (
 	"image/color"
 )
 
-type Tag struct {
-	BorderColor    color.Color
-	BorderWidth    float32
-	Height         float32
-	Width          float32
-	PaddingLeft    float32
-	PaddingTop     float32
-	PaddingBottom  float32
-	PaddingRight   float32
-	MarginLeft     float32
-	MarginTop      float32
-	MarginBottom   float32
-	MarginRight    float32
-	Padding        float32
-	Display        string
-	Name           string
-	Gap            float32
-	JustifyContent string
-	Background     color.NRGBA
-	TextContent    string
-	ChildrenWidth  float32
-	Color          color.NRGBA
-	Children       []*Tag
-	X              float32
-	Y              float32
-	FontSize       float32
-	ChildX         float32
-	ChildY         float32
-	Id             string
-}
-
 var Root = Tag{
 	Display:  "block",
 	Height:   1000,
