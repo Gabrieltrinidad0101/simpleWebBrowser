@@ -59,8 +59,7 @@
         "\r": "NEWLINE",
         ";": "SEMICOLON"
     },
-    "functions": {
-    },
+    "functions": {},
     "scope": "FUNCTION",
     "constructor_name": "CLASS_NAME",
     "paren": true

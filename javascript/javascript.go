@@ -1,4 +1,4 @@
-package main
+package javascript
 
 import (
 	"simpleWebBrowser/render"
@@ -21,9 +21,10 @@ func (d *Dom) GetElementById(params *[]interpreteStructs.IBaseElement) interface
 	if tag == nil {
 		return parserStructs.NullNode{}
 	}
+	return tag
 }
 
 func New(root *render.Tag) {
 	makeLanguage := src.NewMakeLanguage("./conf.json", "./index.js")
-	makeLanguage.AddClass("Document")
+	makeLanguage.Run()
 }
