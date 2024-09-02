@@ -35,6 +35,7 @@ type Tag struct {
 	ChildX         float32
 	ChildY         float32
 	Id             string
+	UUID           string
 	ClassString    string
 }
 

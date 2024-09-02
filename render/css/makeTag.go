@@ -110,8 +110,8 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 	if properties["height"] == "" && textDimention.Height > 0 {
 		tag.Height = textDimention.Height
 	}
-
+	tag.Id = properties["id"]
 	tag.Name = element.Type_
-	tag.Id = string(time.Now().UnixMilli())
+	tag.UUID = string(time.Now().UnixMilli())
 	return &tag
 }

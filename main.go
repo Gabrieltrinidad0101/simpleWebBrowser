@@ -2,6 +2,7 @@ package main
 
 import (
 	htmlparser "simpleWebBrowser/htmlParser"
+	"simpleWebBrowser/javascript"
 	"simpleWebBrowser/render"
 	"simpleWebBrowser/render/css"
 
@@ -27,6 +28,8 @@ func main() {
 	tags := css_.Run(dom)
 	uiRender := render.New()
 	uiRender.Render(tags)
+
+	javascript.New(tags)
 
 	myWindow.SetContent(container.NewWithoutLayout(*uiRender.Uis...))
 	myWindow.ShowAndRun()
