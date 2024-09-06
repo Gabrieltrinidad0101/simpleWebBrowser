@@ -12,7 +12,7 @@ var Root = Tag{
 	Y:        0,
 	Name:     "root",
 	FontSize: 25,
-	Color:    color.NRGBA{R: 0, G: 0, B: 0, A: 255},
+	Color:    &color.NRGBA{R: 0, G: 0, B: 0, A: 255},
 }
 
 var H1 = Tag{

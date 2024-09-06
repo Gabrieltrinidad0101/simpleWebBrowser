@@ -2,7 +2,6 @@ package css
 
 import (
 	"fmt"
-	"image/color"
 	"math"
 	"simpleWebBrowser/render"
 
@@ -36,14 +35,6 @@ func (r *CSS) getLabelCenter(tag *render.Tag) *BasicPosition {
 
 func (c *CSS) print(tag *render.Tag) {
 	fmt.Println("name: ", tag.Name, " width: ", tag.Width, " height: ", tag.Height, "display: ", tag.Display, "x: ", tag.X, "y: ", tag.Y)
-}
-
-func (c *CSS) Color(colorStr string) color.NRGBA {
-	colorRRBA, ok := render.DEFAULT_COLOR[colorStr]
-	if !ok {
-		return color.NRGBA{R: 0, G: 0, B: 0, A: 255}
-	}
-	return colorRRBA
 }
 
 func (c *CSS) Run(root *parser.Element) *render.Tag {

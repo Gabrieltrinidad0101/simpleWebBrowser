@@ -7,6 +7,7 @@ import (
 )
 
 type Tag struct {
+	Parent         *Tag
 	BorderColor    color.Color
 	BorderWidth    float32
 	Height         float32
@@ -27,7 +28,7 @@ type Tag struct {
 	Background     color.NRGBA
 	TextContent    string
 	ChildrenWidth  float32
-	Color          color.NRGBA
+	Color          *color.NRGBA
 	Children       []*Tag
 	X              float32
 	Y              float32

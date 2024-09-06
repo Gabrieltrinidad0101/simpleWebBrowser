@@ -29,7 +29,9 @@ func main() {
 	uiRender := render.New()
 	uiRender.Render(tags)
 
-	javascript.New(tags)
+	javascript.New(tags, func() {
+		uiRender.Render(tags)
+	})
 
 	myWindow.SetContent(container.NewWithoutLayout(*uiRender.Uis...))
 	myWindow.ShowAndRun()

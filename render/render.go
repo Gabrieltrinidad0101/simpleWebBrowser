@@ -33,23 +33,41 @@ func (r render) Render(tags *Tag) {
 }
 
 func (r render) label(tag *Tag) {
-	ui := canvas.NewText(tag.TextContent, tag.Color)
+	uiCreaTed, ok := uiElements[tag.UUID]
+	var ui *canvas.Text
+	if ok {
+		ui = uiCreaTed.(*canvas.Text)
+		ui.Text = tag.TextContent
+		ui.Color = tag.Color
+	} else {
+		ui = canvas.NewText(tag.TextContent, tag.Color)
+	}
 	ui.TextSize = tag.FontSize
 	ui.Resize(fyne.NewSize(tag.Width, tag.Height))
 	ui.Move(fyne.NewPos(tag.X, tag.Y))
-	*r.Uis = append(*r.Uis, ui)
-	uiElements[tag.Id] = ui
+	if !ok {
+		*r.Uis = append(*r.Uis, ui)
+	}
+	uiElements[tag.UUID] = ui
 }
 
 func (r render) container(tag *Tag) {
-	container := canvas.NewRectangle(tag.Color)
+	uiCreaTed, ok := uiElements[tag.UUID]
+	var container *canvas.Rectangle = canvas.NewRectangle(tag.Color)
+	if ok {
+		container = uiCreaTed.(*canvas.Rectangle)
+	} else {
+		container = canvas.NewRectangle(tag.Color)
+	}
 	container.Move(fyne.NewPos(tag.X, tag.Y))
 	container.FillColor = tag.Background
 	container.StrokeColor = tag.BorderColor
 	container.StrokeWidth = tag.BorderWidth
 	container.Resize(fyne.NewSize(tag.Width, tag.Height))
-	*r.Uis = append(*r.Uis, container)
-	uiElements[tag.Id] = container
+	if !ok {
+		*r.Uis = append(*r.Uis, container)
+	}
+	uiElements[tag.UUID] = container
 }
 
 func (r render) entry(tag *Tag) {
@@ -62,7 +80,7 @@ func (r render) entry(tag *Tag) {
 	input.Move(fyne.NewPos(x, y))
 	input.Resize(fyne.NewSize(w, h))
 	*r.Uis = append(*r.Uis, input)
-	uiElements[tag.Id] = input
+	uiElements[tag.UUID] = input
 }
 
 func (r render) render(tag *Tag) {

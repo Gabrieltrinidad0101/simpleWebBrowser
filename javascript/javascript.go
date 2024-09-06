@@ -13,7 +13,8 @@ import (
 type Javascript struct{}
 
 type Dom struct {
-	root *render.Tag
+	root   *render.Tag
+	render func()
 }
 
 func (d *Dom) GetElementById(params *[]interpreteStructs.IBaseElement) interface{} {
@@ -23,7 +24,7 @@ func (d *Dom) GetElementById(params *[]interpreteStructs.IBaseElement) interface
 	if tag == nil {
 		return parserStructs.NullNode{}
 	}
-	return NewElement(tag)
+	return NewElement(tag, d.render)
 }
 
 func consoleLog(params *[]interpreteStructs.IBaseElement) interface{} {
@@ -32,10 +33,10 @@ func consoleLog(params *[]interpreteStructs.IBaseElement) interface{} {
 	return parserStructs.NullNode{}
 }
 
-func New(root *render.Tag) {
+func New(root *render.Tag, render func()) {
 	makeLanguage := src.NewMakeLanguage("/home/gabriel/Desktop/go/simpleWebBrowser/javascript/conf.json", "/home/gabriel/Desktop/go/simpleWebBrowser/javascript/index.js")
 
-	dom := &Dom{root: root}
+	dom := &Dom{root: root, render: render}
 
 	methods := api.Methods{
 		"getElementById": dom.GetElementById,
