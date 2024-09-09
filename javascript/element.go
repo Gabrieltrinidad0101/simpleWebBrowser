@@ -42,7 +42,7 @@ func (e element) MakeStyle() class.Class {
 	style.AddProperty("fontSize", &interpreteStructs.VarType{
 		Value: fontSize,
 		OnUpdateVariable: func(value interface{}) {
-			e.tag.FontSize = utils.NumberDefault(value.(string), e.tag.Parent.Height, e.tag.FontSize)
+			*e.tag.FontSize = utils.NumberDefault(value.(string), *e.tag.Parent.Height, *e.tag.FontSize)
 			e.render()
 		},
 	})

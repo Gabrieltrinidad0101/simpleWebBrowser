@@ -42,8 +42,8 @@ func (r render) label(tag *Tag) {
 	} else {
 		ui = canvas.NewText(tag.TextContent, tag.Color)
 	}
-	ui.TextSize = tag.FontSize
-	ui.Resize(fyne.NewSize(tag.Width, tag.Height))
+	ui.TextSize = *tag.FontSize
+	ui.Resize(fyne.NewSize(tag.Width, *tag.Height))
 	ui.Move(fyne.NewPos(tag.X, tag.Y))
 	if !ok {
 		*r.Uis = append(*r.Uis, ui)
@@ -63,7 +63,7 @@ func (r render) container(tag *Tag) {
 	container.FillColor = tag.Background
 	container.StrokeColor = tag.BorderColor
 	container.StrokeWidth = tag.BorderWidth
-	container.Resize(fyne.NewSize(tag.Width, tag.Height))
+	container.Resize(fyne.NewSize(tag.Width, *tag.Height))
 	if !ok {
 		*r.Uis = append(*r.Uis, container)
 	}
@@ -76,7 +76,7 @@ func (r render) entry(tag *Tag) {
 	x := tag.X + tag.PaddingLeft + tag.BorderWidth
 	y := tag.Y + tag.PaddingTop + tag.BorderWidth
 	w := tag.Width - tag.BorderWidth*2
-	h := tag.Height - tag.BorderWidth*2
+	h := *tag.Height - tag.BorderWidth*2
 	input.Move(fyne.NewPos(x, y))
 	input.Resize(fyne.NewSize(w, h))
 	*r.Uis = append(*r.Uis, input)

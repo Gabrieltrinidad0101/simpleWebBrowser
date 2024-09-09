@@ -20,7 +20,7 @@ type CSS struct {
 }
 
 func (r *CSS) getLabelCenter(tag *render.Tag) *BasicPosition {
-	textDimention := fyne.MeasureText(tag.TextContent, tag.FontSize, fyne.TextStyle{})
+	textDimention := fyne.MeasureText(tag.TextContent, *tag.FontSize, fyne.TextStyle{})
 
 	x := tag.X + tag.PaddingLeft
 	y := tag.Y + tag.PaddingTop
@@ -39,7 +39,7 @@ func (c *CSS) print(tag *render.Tag) {
 
 func (c *CSS) Run(root *parser.Element) *render.Tag {
 	tag := c.run(root, &render.Root)
-	c.resetPosition(tag, &render.Root)
+	c.ResetPosition(tag, &render.Root)
 	return tag
 }
 
@@ -92,8 +92,7 @@ func (c *CSS) flexBox(tag *render.Tag, child *render.Tag, index int) {
 
 }
 
-func (c *CSS) resetPosition(tag *render.Tag, parent *render.Tag) {
-	c.print(tag)
+func (c *CSS) ResetPosition(tag *render.Tag, parent *render.Tag) {
 	tag.ChildX = tag.X + tag.BorderWidth + tag.PaddingLeft
 	tag.ChildY = tag.Y + tag.BorderWidth + tag.PaddingTop
 
@@ -110,12 +109,12 @@ func (c *CSS) resetPosition(tag *render.Tag, parent *render.Tag) {
 		} else if tag.Display == "flex" {
 			c.flexBox(tag, child, i)
 		} else {
-			tag.ChildY += child.Y + child.Height + child.MarginBottom
+			tag.ChildY += child.Y + *child.Height + child.MarginBottom
 		}
 	}
 
 	for _, child := range tag.Children {
-		c.resetPosition(child, tag)
+		c.ResetPosition(child, tag)
 	}
 
 }
@@ -131,29 +130,29 @@ func (c *CSS) run(dom *parser.Element, parent *render.Tag) *render.Tag {
 		childTag := c.run(element, tag)
 		tag.Children = append(tag.Children, childTag)
 		biggerWidth = float32(math.Max(float64(biggerWidth), float64(childTag.Width)))
-		biggerHeight = float32(math.Max(float64(biggerHeight), float64(childTag.Height)))
+		biggerHeight = float32(math.Max(float64(biggerHeight), float64(*childTag.Height)))
 		totalChildrenWidth += childTag.Width
-		totalChildrenHeight += childTag.Height
+		totalChildrenHeight += *childTag.Height
 	}
 
 	tag.ChildrenWidth = totalChildrenWidth
 
 	if tag.Display == "inline" && len(dom.Children) > 0 {
 		tag.Width = biggerWidth
-		tag.Height = biggerHeight
+		*tag.Height = biggerHeight
 	}
 
 	if tag.Width <= 0 && tag.Display == "inline-block" {
 		tag.Width = totalChildrenWidth
 	}
 
-	if tag.Height <= 0 && tag.Display == "block" {
-		tag.Height = totalChildrenHeight
+	if *tag.Height <= 0 && tag.Display == "block" {
+		*tag.Height = totalChildrenHeight
 	}
 
-	tag.Height += tag.BorderWidth * 2
+	*tag.Height += tag.BorderWidth * 2
 	tag.Width += tag.BorderWidth * 2
-	tag.Height += tag.PaddingTop + tag.PaddingBottom
+	*tag.Height += tag.PaddingTop + tag.PaddingBottom
 	tag.Width += tag.PaddingRight + tag.PaddingLeft
 
 	return tag

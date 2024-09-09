@@ -5,5 +5,5 @@ import (
 )
 
 func (c *CSS) padding(tag *render.Tag) {
-	tag.Height += tag.PaddingTop
+	*tag.Height += tag.PaddingTop
 }

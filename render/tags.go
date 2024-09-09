@@ -2,47 +2,50 @@ package render
 
 import (
 	"image/color"
+	"simpleWebBrowser/utils"
 )
 
 var Root = Tag{
 	Display:  "block",
-	Height:   1000,
+	Height:   utils.RefNumber(1000),
 	Width:    1000,
 	X:        0,
 	Y:        0,
 	Name:     "root",
-	FontSize: 25,
+	FontSize: utils.RefNumber(25),
 	Color:    &color.NRGBA{R: 0, G: 0, B: 0, A: 255},
 }
 
 var H1 = Tag{
 	Display:    "block",
 	Name:       "h1",
-	FontSize:   30,
+	FontSize:   utils.RefNumber(30),
 	MarginLeft: 10,
+	Height:     utils.RefNumber(0),
 }
 
 var Span = Tag{
 	Display:  "inline",
 	Name:     "h1",
-	FontSize: 20,
+	FontSize: utils.RefNumber(20),
 }
 
 var P = Tag{
 	Display:  "block",
 	Name:     "p",
-	FontSize: 25,
+	FontSize: utils.RefNumber(25),
 }
 
 var Div = Tag{
 	Display:  "block",
 	Name:     "div",
-	FontSize: 25,
+	FontSize: utils.RefNumber(25),
 }
 
 var Text = Tag{
 	Display: "inline",
 	Name:    "text",
+	Height:  utils.RefNumber(0),
 }
 
 var Button = Tag{
@@ -54,9 +57,9 @@ var Button = Tag{
 		B: 237,
 		A: 255,
 	},
-	BorderColor:   DEFAULT_COLOR["black"],
+	BorderColor:   utils.DEFAULT_COLOR["black"],
 	BorderWidth:   1,
-	FontSize:      10,
+	FontSize:      utils.RefNumber(10),
 	PaddingLeft:   5,
 	PaddingTop:    5,
 	PaddingRight:  5,
@@ -66,9 +69,9 @@ var Button = Tag{
 var Input = Tag{
 	Display:  "inline",
 	Name:     "input",
-	FontSize: 15,
+	FontSize: utils.RefNumber(15),
 	Width:    75,
-	Height:   30,
+	Height:   utils.RefNumber(30),
 }
 
 var TAGS = map[string]Tag{

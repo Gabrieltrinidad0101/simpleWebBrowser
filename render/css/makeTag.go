@@ -27,15 +27,15 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 	var textDimention fyne.Size
 
 	tag.Width = utils.NumberDefault(properties["width"], parent.Width, tag.Width)
-	tag.Height = utils.NumberDefault(properties["height"], parent.Height, tag.Height)
+	*tag.Height = utils.NumberDefault(properties["height"], *parent.Height, *tag.Height)
 	tag.PaddingLeft = utils.NumberDefault(properties["padding-left"], parent.Width, tag.PaddingLeft)
-	tag.PaddingTop = utils.NumberDefault(properties["padding-top"], parent.Height, tag.PaddingTop)
-	tag.PaddingBottom = utils.NumberDefault(properties["padding-bottom"], parent.Height, tag.PaddingBottom)
+	tag.PaddingTop = utils.NumberDefault(properties["padding-top"], *parent.Height, tag.PaddingTop)
+	tag.PaddingBottom = utils.NumberDefault(properties["padding-bottom"], *parent.Height, tag.PaddingBottom)
 	tag.PaddingRight = utils.NumberDefault(properties["padding-right"], parent.Width, tag.PaddingRight)
 
 	tag.MarginLeft = utils.NumberDefault(properties["margin-left"], parent.Width, tag.MarginLeft)
-	tag.MarginTop = utils.NumberDefault(properties["margin-top"], parent.Height, tag.MarginTop)
-	tag.MarginBottom = utils.NumberDefault(properties["margin-bottom"], parent.Height, tag.MarginBottom)
+	tag.MarginTop = utils.NumberDefault(properties["margin-top"], *parent.Height, tag.MarginTop)
+	tag.MarginBottom = utils.NumberDefault(properties["margin-bottom"], *parent.Height, tag.MarginBottom)
 	tag.MarginRight = utils.NumberDefault(properties["margin-right"], parent.Width, tag.MarginRight)
 	tag.JustifyContent = properties["justify-content"]
 	tag.Gap = utils.NumberDefault(properties["gap"], parent.Width, 0)
@@ -57,7 +57,7 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 	}
 
 	if properties["font-size"] != "" {
-		tag.FontSize = utils.NumberDefault(properties["font-size"], parent.Height, tag.FontSize)
+		*tag.FontSize = utils.NumberDefault(properties["font-size"], *parent.Height, *tag.FontSize)
 	} else if parent != nil {
 		tag.FontSize = parent.FontSize
 	}
@@ -69,7 +69,7 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 	}
 
 	if element.TextContent != "" {
-		textDimention = fyne.MeasureText(tag.TextContent, tag.FontSize, fyne.TextStyle{})
+		textDimention = fyne.MeasureText(tag.TextContent, *tag.FontSize, fyne.TextStyle{})
 	}
 
 	if tag.Display == "block" && properties["width"] == "" && parent != nil {
@@ -81,7 +81,7 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 	}
 
 	if properties["height"] == "" && textDimention.Height > 0 {
-		tag.Height = textDimention.Height
+		*tag.Height = textDimention.Height
 	}
 	tag.Id = properties["id"]
 	tag.Name = element.Type_

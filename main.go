@@ -30,6 +30,7 @@ func main() {
 	uiRender.Render(tags)
 
 	javascript.New(tags, func() {
+		css_.ResetPosition(tags, &render.Root)
 		uiRender.Render(tags)
 	})
 

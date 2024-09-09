@@ -10,7 +10,7 @@ type Tag struct {
 	Parent         *Tag
 	BorderColor    color.Color
 	BorderWidth    float32
-	Height         float32
+	Height         *float32
 	Width          float32
 	PaddingLeft    float32
 	PaddingTop     float32
@@ -32,7 +32,7 @@ type Tag struct {
 	Children       []*Tag
 	X              float32
 	Y              float32
-	FontSize       float32
+	FontSize       *float32
 	ChildX         float32
 	ChildY         float32
 	Id             string

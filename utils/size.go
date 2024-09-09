@@ -32,3 +32,7 @@ func NumberDefault(value string, container float32, defaultValue float32) float3
 	return defaultValue
 
 }
+
+func RefNumber(n float32) *float32 {
+	return &n
+}
