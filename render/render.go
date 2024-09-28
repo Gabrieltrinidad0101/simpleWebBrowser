@@ -1,6 +1,8 @@
 package render
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 )
@@ -23,7 +25,7 @@ func New() *render {
 }
 
 func (r render) Render(tags *Tag) {
-	for _, tag := range tags.Children {
+	for _, tag := range *tags.Children {
 		if tag.Name == "style" {
 			continue
 		}
@@ -35,12 +37,13 @@ func (r render) Render(tags *Tag) {
 func (r render) label(tag *Tag) {
 	uiCreaTed, ok := uiElements[tag.UUID]
 	var ui *canvas.Text
+	fmt.Println(*tag.TextContent)
 	if ok {
 		ui = uiCreaTed.(*canvas.Text)
-		ui.Text = tag.TextContent
+		ui.Text = *tag.TextContent
 		ui.Color = tag.Color
 	} else {
-		ui = canvas.NewText(tag.TextContent, tag.Color)
+		ui = canvas.NewText(*tag.TextContent, tag.Color)
 	}
 	ui.TextSize = *tag.FontSize
 	ui.Resize(fyne.NewSize(tag.Width, *tag.Height))

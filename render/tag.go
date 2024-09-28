@@ -26,10 +26,10 @@ type Tag struct {
 	Gap            float32
 	JustifyContent string
 	Background     color.NRGBA
-	TextContent    string
+	TextContent    *string
 	ChildrenWidth  float32
 	Color          *color.NRGBA
-	Children       []*Tag
+	Children       *[]*Tag
 	X              float32
 	Y              float32
 	FontSize       *float32
@@ -49,7 +49,7 @@ func (e *Tag) QuerySelector(textQuery string) *Tag {
 }
 
 func forEach(element *Tag, cb func(*Tag) bool) *Tag {
-	for _, child := range element.Children {
+	for _, child := range *element.Children {
 		stop := cb(child)
 		if stop {
 			return child
@@ -89,7 +89,7 @@ func (e *Tag) setQueryFalses(queries []*parser.QueryData) {
 }
 
 func (e *Tag) querySelector(element *Tag, queries []*parser.QueryData, index int, getAll bool, elements *[]*Tag) *[]*Tag {
-	for _, child := range element.Children {
+	for _, child := range *element.Children {
 		query := (queries)[index]
 
 		if query.TypeSearch == "id" {

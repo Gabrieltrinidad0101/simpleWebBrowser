@@ -20,7 +20,7 @@ type CSS struct {
 }
 
 func (r *CSS) getLabelCenter(tag *render.Tag) *BasicPosition {
-	textDimention := fyne.MeasureText(tag.TextContent, *tag.FontSize, fyne.TextStyle{})
+	textDimention := fyne.MeasureText(*tag.TextContent, *tag.FontSize, fyne.TextStyle{})
 
 	x := tag.X + tag.PaddingLeft
 	y := tag.Y + tag.PaddingTop
@@ -47,7 +47,7 @@ func (c *CSS) flexBox(tag *render.Tag, child *render.Tag, index int) {
 	width := tag.Width - tag.BorderWidth*2
 
 	if tag.JustifyContent == "space-between" {
-		gap := math.Max(float64((width-tag.ChildrenWidth)/float32(len(tag.Children)-1))+float64(tag.Gap), 0)
+		gap := math.Max(float64((width-tag.ChildrenWidth)/float32(len(*tag.Children)-1))+float64(tag.Gap), 0)
 		child.X = tag.ChildX
 		child.Y = tag.ChildY
 		tag.ChildX += child.Width + float32(gap)
@@ -66,7 +66,7 @@ func (c *CSS) flexBox(tag *render.Tag, child *render.Tag, index int) {
 	}
 
 	if tag.JustifyContent == "space-evenly" {
-		gap := math.Max(float64((width-tag.ChildrenWidth)/float32(len(tag.Children)+1))+float64(tag.Gap), 0)
+		gap := math.Max(float64((width-tag.ChildrenWidth)/float32(len(*tag.Children)+1))+float64(tag.Gap), 0)
 		child.X = tag.ChildX + float32(gap)
 		child.Y = tag.ChildY
 		tag.ChildX += child.Width + float32(gap)
@@ -100,7 +100,7 @@ func (c *CSS) ResetPosition(tag *render.Tag, parent *render.Tag) {
 		tag.ChildX += tag.Width
 	}
 
-	for i, child := range tag.Children {
+	for i, child := range *tag.Children {
 		child.X = tag.ChildX + child.MarginLeft
 		child.Y = tag.ChildY + child.MarginTop
 
@@ -113,7 +113,7 @@ func (c *CSS) ResetPosition(tag *render.Tag, parent *render.Tag) {
 		}
 	}
 
-	for _, child := range tag.Children {
+	for _, child := range *tag.Children {
 		c.ResetPosition(child, tag)
 	}
 
@@ -128,7 +128,7 @@ func (c *CSS) run(dom *parser.Element, parent *render.Tag) *render.Tag {
 
 	for _, element := range dom.Children {
 		childTag := c.run(element, tag)
-		tag.Children = append(tag.Children, childTag)
+		*tag.Children = append(*tag.Children, childTag)
 		biggerWidth = float32(math.Max(float64(biggerWidth), float64(childTag.Width)))
 		biggerHeight = float32(math.Max(float64(biggerHeight), float64(*childTag.Height)))
 		totalChildrenWidth += childTag.Width

@@ -22,7 +22,7 @@ func (c *CSS) border(border string) (float32, color.Color) {
 func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 	properties := element.Properties
 	tag := render.TAGS[element.Type_]
-	tag.TextContent = element.TextContent
+	*tag.TextContent = element.TextContent
 	tag.Parent = parent
 	var textDimention fyne.Size
 
@@ -69,7 +69,7 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 	}
 
 	if element.TextContent != "" {
-		textDimention = fyne.MeasureText(tag.TextContent, *tag.FontSize, fyne.TextStyle{})
+		textDimention = fyne.MeasureText(*tag.TextContent, *tag.FontSize, fyne.TextStyle{})
 	}
 
 	if tag.Display == "block" && properties["width"] == "" && parent != nil {
@@ -86,5 +86,6 @@ func (c *CSS) makeTag(element *parser.Element, parent *render.Tag) *render.Tag {
 	tag.Id = properties["id"]
 	tag.Name = element.Type_
 	tag.UUID = fmt.Sprint(time.Now().UnixMilli())
+	tag.Children = new([]*render.Tag)
 	return &tag
 }

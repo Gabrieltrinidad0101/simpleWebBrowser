@@ -6,22 +6,24 @@ import (
 )
 
 var Root = Tag{
-	Display:  "block",
-	Height:   utils.RefNumber(1000),
-	Width:    1000,
-	X:        0,
-	Y:        0,
-	Name:     "root",
-	FontSize: utils.RefNumber(25),
-	Color:    &color.NRGBA{R: 0, G: 0, B: 0, A: 255},
+	Display:     "block",
+	Height:      utils.RefNumber(1000),
+	Width:       1000,
+	X:           0,
+	Y:           0,
+	Name:        "root",
+	FontSize:    utils.RefNumber(25),
+	Color:       &color.NRGBA{R: 0, G: 0, B: 0, A: 255},
+	TextContent: new(string),
 }
 
 var H1 = Tag{
-	Display:    "block",
-	Name:       "h1",
-	FontSize:   utils.RefNumber(30),
-	MarginLeft: 10,
-	Height:     utils.RefNumber(0),
+	Display:     "block",
+	Name:        "h1",
+	FontSize:    utils.RefNumber(30),
+	MarginLeft:  10,
+	Height:      utils.RefNumber(0),
+	TextContent: new(string),
 }
 
 var Span = Tag{
@@ -43,9 +45,10 @@ var Div = Tag{
 }
 
 var Text = Tag{
-	Display: "inline",
-	Name:    "text",
-	Height:  utils.RefNumber(0),
+	Display:     "inline",
+	Name:        "text",
+	TextContent: new(string),
+	Height:      utils.RefNumber(0),
 }
 
 var Button = Tag{

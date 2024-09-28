@@ -65,13 +65,14 @@ func NewElement(tag *render.Tag, render func()) class.Class {
 
 	style := ele.MakeStyle()
 
-	text := str.NewString(tag.TextContent, nil)
+	text := str.NewString(*tag.TextContent, nil)
 
 	elementClass.AddProperty("style", &interpreteStructs.VarType{Value: style})
 	elementClass.AddProperty("textContent", &interpreteStructs.VarType{
 		Value: text,
 		OnUpdateVariable: func(value interface{}) {
-			tag.TextContent = value.(string)
+			textChild := (*tag.Children)[0]
+			*textChild.TextContent = value.(string)
 			render()
 		},
 	})
